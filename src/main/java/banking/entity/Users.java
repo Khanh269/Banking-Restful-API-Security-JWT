@@ -1,5 +1,7 @@
 package banking.entity;
 
+import java.util.Set;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,10 +9,12 @@ import javax.persistence.*;
 public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
 	private int userId;
 	private String userName;
 	private String password;
 	private long balance;
+
 
 	public int getUserId() {
 		return userId;

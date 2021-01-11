@@ -74,7 +74,7 @@ public class Services {
 			repository.save(user);
 
 			TransHistory tHistory = new TransHistory();
-			tHistory.setUserId(userId);
+			tHistory.setUser(getUserById(userId));
 			tHistory.setAmount(amount);
 			tHistory.setTransTime(LocalDateTime.now());
 			tRepository.save(tHistory);
@@ -97,7 +97,7 @@ public class Services {
 			repository.save(user);
 
 			tHistory = new TransHistory();
-			tHistory.setUserId(userId);
+			tHistory.setUser(getUserById(userId));
 			tHistory.setAmount(-amount);
 			tHistory.setTransTime(LocalDateTime.now());
 			tRepository.save(tHistory);

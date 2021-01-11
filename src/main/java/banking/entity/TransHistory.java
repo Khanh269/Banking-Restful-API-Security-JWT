@@ -2,17 +2,21 @@ package banking.entity;
 
 import java.time.LocalDateTime;
 
+
 import javax.persistence.*;
 
 @Entity
-@Table(name="transhistory")
+@Table(name = "transhistory")
 public class TransHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="trans_id")
 	public int transId;
-	public int userId;
 	public int amount;
 	public LocalDateTime transTime;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	public Users user;
 
 	public int getTransId() {
 		return transId;
@@ -22,13 +26,14 @@ public class TransHistory {
 		this.transId = transId;
 	}
 
-	public int getUserId() {
-		return userId;
+	public Users getUser() {
+		return user;
 	}
 
-	public void setUserId(int userId) {
-		this.userId = userId;
+	public void setUser(Users user) {
+		this.user = user;
 	}
+
 
 	public int getAmount() {
 		return amount;

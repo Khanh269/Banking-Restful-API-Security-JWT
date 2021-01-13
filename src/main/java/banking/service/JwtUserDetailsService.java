@@ -1,6 +1,6 @@
 package banking.service;
 
-import banking.entity.Users;
+import banking.model.Users;
 import banking.repository.UsersRepository;
 
 

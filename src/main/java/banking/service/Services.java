@@ -3,7 +3,7 @@ package banking.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.json.simple.JSONObject;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,8 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import banking.entity.TransHistory;
-import banking.entity.Users;
+import banking.model.TransHistory;
+import banking.model.UserDto;
+import banking.model.Users;
 import banking.repository.TransHistoryRepository;
 import banking.repository.UsersRepository;
 
@@ -33,21 +34,17 @@ public class Services {
 		return getUserByName(currentUsername);
 	}
 
-	public long getBalance(int userId) {
-		Users user = repository.getOne(userId);
-		return user.getBalance();
-	}
-
 	public Users saveUser(Users user) {
 		Users newUser = new Users();
-		newUser.setuserName(user.getUserName());
+		newUser.setUserName(user.getUserName());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		return repository.save(newUser);
-
 	}
 
-	public List<Users> getUsers() {
-		return repository.findAll();
+	public List<Users> getUsersPaging (int pageNo, int pageSize){
+		Pageable paging = PageRequest.of(pageNo, pageSize);
+		List<Users> pagedResult = repository.findUsersPaging(paging);
+		return pagedResult;
 	}
 
 	public Users getUserById(int userId) {
@@ -57,20 +54,20 @@ public class Services {
 	public Users getUserByName(String userName) {
 		return repository.findByuserName(userName);
 	}
+	
+	public Users updateUser(Users user) {
+		Users existingUsers = repository.findById(user.getUserId()).orElse(null);
+		existingUsers.setUserName(user.getUserName());
+		existingUsers.setBalance(user.getBalance());
+		return repository.save(existingUsers);
+	}
 
 	public String deleteUser(int userId) {
 		repository.deleteById(userId);
 		return "Users removed !! " + userId;
 	}
 
-	public Users updateUser(Users user) {
-		Users existingUsers = repository.findById(user.getUserId()).orElse(null);
-		existingUsers.setuserName(user.getUserName());
-		existingUsers.setBalance(user.getBalance());
-		return repository.save(existingUsers);
-	}
-
-	public JSONObject deposit(int userId, int amount) {
+	public UserDto deposit(int userId, int amount) {
 		Users user = getUserById(userId);
 		TransHistory tHistory;
 		long newBalance;
@@ -90,13 +87,13 @@ public class Services {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		JSONObject json = new JSONObject();
-		json.put("success", success);
-		json.put("user", user);
-		return json;
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto userDto = modelMapper.map(user, UserDto.class);
+		userDto.setSuccess(success);
+		return userDto;
 	}
 
-	public JSONObject withdraw(int userId, int amount) {
+	public UserDto withdraw(int userId, int amount) {
 		Users user = getUserById(userId);
 		TransHistory tHistory;
 		long newBalance;
@@ -118,26 +115,26 @@ public class Services {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		JSONObject json = new JSONObject();
-		json.put("success", success);
-		json.put("user", user);
-		return json;
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto userDto = modelMapper.map(user, UserDto.class);
+		userDto.setSuccess(success);
+		return userDto;
 	}
 
-	public JSONObject transfer(int userTransferId, int userBenefitId, int amount) {
-		JSONObject json = new JSONObject();
+	public UserDto transfer(int userTransferId, int userBenefitId, int amount) {
+		UserDto userDto = new UserDto();
 		try {
-			json = withdraw(userTransferId, amount);
+			userDto = withdraw(userTransferId, amount);
 			deposit(userBenefitId, amount);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return json;
+		return userDto;
 	}
 
-	public List<TransHistory> findByIdPaging(int userId, Integer pageNo, Integer pageSize) {
+	public List<TransHistory> transHistoryByUserIdPaging(int userId, Integer pageNo, Integer pageSize) {
 		Pageable paging = PageRequest.of(pageNo, pageSize);
-		Page<TransHistory> pagedResult = tRepository.findById(userId,paging);
+		Page<TransHistory> pagedResult = tRepository.findByUserIdPaging(userId, paging);
 		return pagedResult.getContent();
 	}
 }

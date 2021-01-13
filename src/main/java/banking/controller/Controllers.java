@@ -1,7 +1,8 @@
 package banking.controller;
 
-import banking.entity.TransHistory;
-import banking.entity.Users;
+import banking.model.TransHistory;
+import banking.model.UserDto;
+import banking.model.Users;
 import banking.service.Services;
 
 import org.json.simple.JSONObject;
@@ -22,8 +23,8 @@ public class Controllers {
 	}
 
 	@GetMapping("/users")
-	public List<Users> findAllUserss() {
-		return service.getUsers();
+	public List<Users> findAllUserss(@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize) {
+		return service.getUsersPaging(pageNo,pageSize);
 	}
 
 	@GetMapping("/userById/{userId}")
@@ -42,19 +43,19 @@ public class Controllers {
 	}
 
 	@PostMapping("/deposit")
-	public JSONObject deposit(@RequestParam int amount) {
+	public UserDto deposit(@RequestParam int amount) {
 		Users user = service.getCurrentUser();
 		return service.deposit(user.getUserId(), amount);
 	}
 
 	@PostMapping("/withdraw")
-	public JSONObject withdraw(@RequestParam int amount) {
+	public UserDto withdraw(@RequestParam int amount) {
 		Users user = service.getCurrentUser();
 		return service.withdraw(user.getUserId(), amount);
 	}
 
 	@PostMapping("/transfer")
-	public JSONObject transfer(@RequestParam int userId, int amount) {
+	public UserDto transfer(@RequestParam int userId, int amount) {
 		Users user = service.getCurrentUser();
 		return service.transfer(user.getUserId(), userId, amount);
 	}
@@ -62,7 +63,7 @@ public class Controllers {
 	@GetMapping("/transferHistory")
 	public List<TransHistory> transHistory(@RequestParam int userId,
 			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize) {
-		List<TransHistory> list = service.findByIdPaging (userId, pageNo, pageSize);
+		List<TransHistory> list = service.transHistoryByUserIdPaging (userId, pageNo, pageSize);
 		return list; 
 	}
 

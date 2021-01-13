@@ -3,9 +3,8 @@ package banking.controller;
 import banking.model.TransHistory;
 import banking.model.UserDto;
 import banking.model.Users;
-import banking.service.Services;
+import banking.service.ServicesImpl;
 
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +14,7 @@ import java.util.List;
 public class Controllers {
 
 	@Autowired
-	private Services service;
+	private ServicesImpl service;
 
 	@PostMapping("/register")
 	public Users register(@RequestBody Users user) {

@@ -5,7 +5,10 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "transhistory")
 public class TransHistory {
 	@Id

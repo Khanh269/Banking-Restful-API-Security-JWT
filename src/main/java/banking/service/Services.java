@@ -3,7 +3,11 @@ package banking.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,62 +70,74 @@ public class Services {
 		return repository.save(existingUsers);
 	}
 
-	public String deposit(int userId, int amount) {
+	public JSONObject deposit(int userId, int amount) {
+		Users user = getUserById(userId);
+		TransHistory tHistory;
+		long newBalance;
+		boolean success = false;
 		try {
-			Users user = getUserById(userId);
-			long newBalance = user.getBalance() + amount;
+			newBalance = user.getBalance() + amount;
 			user.setBalance(newBalance);
 			repository.save(user);
 
-			TransHistory tHistory = new TransHistory();
+			tHistory = new TransHistory();
 			tHistory.setUser(getUserById(userId));
 			tHistory.setAmount(amount);
 			tHistory.setTransTime(LocalDateTime.now());
 			tRepository.save(tHistory);
 
-			return ("Giao dich thanh cong, so du cua quy khach la:" + user.getBalance());
+			success = true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "Giao dich that bai, xin thu lai";
 		}
+		JSONObject json = new JSONObject();
+		json.put("success", success);
+		json.put("user", user);
+		return json;
 	}
 
-	public String withdraw(int userId, int amount) {
+	public JSONObject withdraw(int userId, int amount) {
 		Users user = getUserById(userId);
 		TransHistory tHistory;
 		long newBalance;
-		if (user.getBalance() >= amount) {
-			tHistory = new TransHistory();
-			newBalance = user.getBalance() - amount;
-			user.setBalance(newBalance);
-			repository.save(user);
-
-			tHistory = new TransHistory();
-			tHistory.setUser(getUserById(userId));
-			tHistory.setAmount(-amount);
-			tHistory.setTransTime(LocalDateTime.now());
-			tRepository.save(tHistory);
-
-			return ("Giao dich thanh cong, so du cua quy khach la:" + user.getBalance());
-		} else {
-			return "So du khong du";
-		}
-	}
-
-	public String transfer(int userTransferId, int userBenefitId, int amount) {
-		Users userTransfer = getUserById(userTransferId);
+		boolean success = false;
 		try {
-			withdraw(userTransferId, amount);
-			deposit(userBenefitId, amount);
-			return ("Giao dich thanh cong, so du cua quy khach la:" + userTransfer.getBalance());
+			if (user.getBalance() >= amount) {
+				newBalance = user.getBalance() - amount;
+				user.setBalance(newBalance);
+				repository.save(user);
+
+				tHistory = new TransHistory();
+				tHistory.setUser(getUserById(userId));
+				tHistory.setAmount(-amount);
+				tHistory.setTransTime(LocalDateTime.now());
+				tRepository.save(tHistory);
+
+				success = true;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "So du khong du";
 		}
-
+		JSONObject json = new JSONObject();
+		json.put("success", success);
+		json.put("user", user);
+		return json;
 	}
 
-	public List<TransHistory> transHistory(int userId) {
-		return tRepository.getTransHistory(userId);
+	public JSONObject transfer(int userTransferId, int userBenefitId, int amount) {
+		JSONObject json = new JSONObject();
+		try {
+			json = withdraw(userTransferId, amount);
+			deposit(userBenefitId, amount);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+
+	public List<TransHistory> findByIdPaging(int userId, Integer pageNo, Integer pageSize) {
+		Pageable paging = PageRequest.of(pageNo, pageSize);
+		Page<TransHistory> pagedResult = tRepository.findById(userId,paging);
+		return pagedResult.getContent();
 	}
 }

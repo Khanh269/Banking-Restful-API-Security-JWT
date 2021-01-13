@@ -1,10 +1,14 @@
 package banking.entity;
 
-import java.util.Set;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "users")
 public class Users {
 	@Id
@@ -12,9 +16,11 @@ public class Users {
 	@Column(name = "user_id")
 	private int userId;
 	private String userName;
+	@JsonIgnore
 	private String password;
 	private long balance;
 
+	
 
 	public int getUserId() {
 		return userId;

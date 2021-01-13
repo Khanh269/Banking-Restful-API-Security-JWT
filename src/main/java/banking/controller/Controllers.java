@@ -3,6 +3,8 @@ package banking.controller;
 import banking.entity.TransHistory;
 import banking.entity.Users;
 import banking.service.Services;
+
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,14 +12,12 @@ import java.util.List;
 
 @RestController
 public class Controllers {
-	
 
 	@Autowired
 	private Services service;
-	
 
 	@PostMapping("/register")
-	public Users register (@RequestBody Users user) {
+	public Users register(@RequestBody Users user) {
 		return service.saveUser(user);
 	}
 
@@ -42,28 +42,28 @@ public class Controllers {
 	}
 
 	@PostMapping("/deposit")
-	public String deposit(@RequestParam int amount) {
+	public JSONObject deposit(@RequestParam int amount) {
 		Users user = service.getCurrentUser();
 		return service.deposit(user.getUserId(), amount);
 	}
 
 	@PostMapping("/withdraw")
-	public String withdraw(@RequestParam int amount) {
+	public JSONObject withdraw(@RequestParam int amount) {
 		Users user = service.getCurrentUser();
 		return service.withdraw(user.getUserId(), amount);
 	}
 
 	@PostMapping("/transfer")
-	public String transfer (@RequestParam int userId, int amount) {
+	public JSONObject transfer(@RequestParam int userId, int amount) {
 		Users user = service.getCurrentUser();
 		return service.transfer(user.getUserId(), userId, amount);
 	}
 
 	@GetMapping("/transferHistory")
-	public List<TransHistory> transHistory(@RequestParam int userId) {
-		return service.transHistory(userId);
+	public List<TransHistory> transHistory(@RequestParam int userId,
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize) {
+		List<TransHistory> list = service.findByIdPaging (userId, pageNo, pageSize);
+		return list; 
 	}
-	
 
-	
 }

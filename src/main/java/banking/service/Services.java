@@ -43,8 +43,8 @@ public class Services {
 
 	public List<Users> getUsersPaging (int pageNo, int pageSize){
 		Pageable paging = PageRequest.of(pageNo, pageSize);
-		List<Users> pagedResult = repository.findUsersPaging(paging);
-		return pagedResult;
+		Page<Users> pagedResult = repository.findAll(paging);
+		return pagedResult.getContent();
 	}
 
 	public Users getUserById(int userId) {

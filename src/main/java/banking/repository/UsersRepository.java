@@ -11,6 +11,4 @@ import banking.model.Users;
 
 public interface UsersRepository extends JpaRepository <Users,Integer>{
 	Users findByuserName(String userName);
-	@Query("select u from Users u")
-	List<Users> findUsersPaging (Pageable pageable);
 }

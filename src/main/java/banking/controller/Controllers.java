@@ -4,12 +4,14 @@ import banking.model.TransHistory;
 import banking.model.UserDto;
 import banking.model.Users;
 import banking.service.ServicesImpl;
+import io.swagger.annotations.Api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Api
 @RestController
 public class Controllers {
 

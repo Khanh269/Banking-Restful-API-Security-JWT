@@ -45,13 +45,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
-				.authorizeRequests().antMatchers("/", "/home","/register","/authenticate").permitAll().and() // Cho phép tất cả mọi người truy cập vào 2 địa
-																		// chỉ này
+				.authorizeRequests().antMatchers("/", "/home","/register","/authenticate","/swagger-ui.html").permitAll().and() // Cho phép tất cả mọi người truy cập vào
+				.authorizeRequests().antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html", "/webjars/**").permitAll().and()
 				.authorizeRequests().anyRequest().authenticated() // Tất cả các request khác đều cần phải xác thực mới được truy cập
-				.and().formLogin() // Cho phép người dùng xác thực bằng form login
-				.defaultSuccessUrl("/hello").and().logout() // Cho phép logout
-				.permitAll().and().
-				exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+				.and().formLogin().defaultSuccessUrl("/hello").and() // Cho phép người dùng xác thực bằng form login
+				.logout().permitAll().and() // Cho phép logout
+				.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		// Add a filter to validate the tokens with every request
